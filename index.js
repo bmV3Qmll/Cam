@@ -48,7 +48,7 @@
           video.srcObject = stream;
           video.setAttribute('playsinline', true);
           video.setAttribute('controls', true);
-          // video.play();
+          video.play();
           setTimeout(() => {video.removeAttribute('controls');});
         }).catch((err) => {
           console.error(`An error occurred: ${err}`);
