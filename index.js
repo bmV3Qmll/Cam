@@ -1,4 +1,4 @@
-window.addEventListener('DOMContentLoaded', () => {
+(() => {
   const width = 320;
   var height = 0; // scale by width and input stream
   var streaming = false;
@@ -18,14 +18,13 @@ window.addEventListener('DOMContentLoaded', () => {
     btn = document.getElementById('photo-btn');
     
     if (window.isMediaStreamAPISupported) {
-      var constraints;
       // Notify user for camera permission
       navigator.mediaDevices
         .enumerateDevices().then((devices) => {
         var device = devices.filter((dev) => {
           if (dev.kind == "videoinput") return dev;
         });
-        
+        var constraints;
         // Configure video stream
         if (device.length > 0) {
           constraints = {
@@ -42,15 +41,16 @@ window.addEventListener('DOMContentLoaded', () => {
           }
           
           if (!constraints.video.mandatory.sourceId && !window.iOS) constraints = {video: true};
+          
+          navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then((stream) => {
+            video.srcObject = stream;
+            video.play();
+          }).catch((err) => {
+            console.error(`An error occurred: ${err}`);
+          });
         }
-      });
-      navigator.mediaDevices
-        .getUserMedia(constraints)
-        .then((stream) => {
-        video.srcObject = stream;
-        video.play();
-      }).catch((err) => {
-        console.error(`An error occurred: ${err}`);
       });
     }
     
@@ -91,4 +91,4 @@ window.addEventListener('DOMContentLoaded', () => {
     
     clearPhoto();
   });
-});
+})();
