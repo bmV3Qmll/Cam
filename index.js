@@ -1,4 +1,4 @@
-(() => {
+window.addEventListener('DOMContentLoaded', () => {
   const width = 320;
   var height = 0; // scale by width and input stream
   var streaming = false;
@@ -91,4 +91,4 @@
     
     clearPhoto();
   });
-})();
+});
