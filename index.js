@@ -8,22 +8,53 @@
   var photo = null;
   
   window.addEventListener("load", () => {
+    window.iOS = ['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0;
+    window.isMediaStreamAPISupported = navigator && navigator.mediaDevices && 'enumerateDevices' in navigator.mediaDevices;
+    window.noCameraPermission = false;
+    
     video = document.getElementById('video');
     canvas = document.getElementById('canvas');
     photo = document.getElementById('photo');
     btn = document.getElementById('photo-btn');
     
-    // Notify user for camera permission
-    navigator.mediaDevices
-      .getUserMedia({video: true, audio: false})
-      .then((stream) => {
-    	video.srcObject = stream;
-      video.play();
-    }).catch((err) => {
-      console.error(`An error occurred: ${err}`);
-    });
+    if (window.isMediaStreamAPISupported) {
+      var constraints;
+      // Notify user for camera permission
+      navigator.mediaDevices
+        .enumerateDevices().then((devices) => {
+        var device = devices.filter((dev) => {
+          if (dev.kind == "videoinput") return dev;
+        });
+        
+        // Configure video stream
+        if (device.length > 0) {
+          constraints = {
+            video: {
+              mandatory: {
+                sourceId: device[device.length - 1].deviceId ? device[device.length - 1].deviceId : null
+              }
+            },
+            audio: false
+          };
+          
+          if (window.iOS) {
+            constraints.video.facingMode = 'environment';
+          }
+          
+          if (!constraints.video.mandatory.sourceId && !window.iOS) constraints = {video: true};
+        }
+      });
+      navigator.mediaDevices
+        .getUserMedia(constraints)
+        .then((stream) => {
+        video.srcObject = stream;
+        video.play();
+      }).catch((err) => {
+        console.error(`An error occurred: ${err}`);
+      });
+    }
     
-    // Configure video
+    // Configure display frames
     video.addEventListener("canplay", () => {
       if (!streaming) {
       	height = (video.videoHeight / video.videoWidth) * width;
