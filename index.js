@@ -24,7 +24,7 @@
         var device = devices.filter((dev) => {
           if (dev.kind == "videoinput") return dev;
         });
-        var constraints;
+        var constraints = {video: true};
         // Configure video stream
         if (device.length > 0) {
           constraints = {
@@ -41,16 +41,18 @@
           }
           
           if (!constraints.video.mandatory.sourceId && !window.iOS) constraints = {video: true};
-          
-          navigator.mediaDevices
-            .getUserMedia(constraints)
-            .then((stream) => {
-            video.srcObject = stream;
-            video.play();
-          }).catch((err) => {
-            console.error(`An error occurred: ${err}`);
-          });
         }
+        navigator.mediaDevices
+          .getUserMedia(constraints)
+          .then((stream) => {
+          video.srcObject = stream;
+          video.setAttribute('playsinline', true);
+          video.setAttribute('controls', true);
+          // video.play();
+          setTimeout(() => {video.removeAttribute('controls');});
+        }).catch((err) => {
+          console.error(`An error occurred: ${err}`);
+        });
       });
     }
     
